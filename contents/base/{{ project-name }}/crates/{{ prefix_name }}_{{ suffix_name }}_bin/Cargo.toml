@@ -1,0 +1,31 @@
+[package]
+name = "{{ prefix_name }}_{{ suffix_name }}_bin"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "{{ project-name }}"
+path = "src/main.rs"
+
+[dependencies]
+{{ prefix_name }}_{{ suffix_name }}_core = { path = "../{{ prefix_name }}_{{ suffix_name }}_core" }
+{% if persistence ~= 'None' %}{{ prefix_name }}_{{ suffix_name }}_persistence = { path = "../{{ prefix_name }}_{{ suffix_name }}_persistence" }
+{% endif %}{% if cache ~= 'None' %}{{ prefix_name }}_{{ suffix_name }}_cache = { path = "../{{ prefix_name }}_{{ suffix_name }}_cache" }
+{% endif %}{% if messaging ~= 'None' %}{{ prefix_name }}_{{ suffix_name }}_messaging = { path = "../{{ prefix_name }}_{{ suffix_name }}_messaging" }
+{% endif %}{% if has_s3 %}{{ prefix_name }}_{{ suffix_name }}_storage_s3 = { path = "../{{ prefix_name }}_{{ suffix_name }}_storage_s3" }
+{% endif %}{% if has_azure_blob %}{{ prefix_name }}_{{ suffix_name }}_storage_azure = { path = "../{{ prefix_name }}_{{ suffix_name }}_storage_azure" }
+{% endif %}
+anyhow = "1"
+axum = "0.8"
+clap = { version = "4", features = ["derive"] }
+dotenvy = "0.15"
+figment = { version = "0.10", features = ["toml", "env"] }
+opentelemetry = { version = "0.27", features = ["trace"] }
+opentelemetry-otlp = { version = "0.27", features = ["grpc-tonic"] }
+opentelemetry_sdk = { version = "0.27", features = ["rt-tokio"] }
+serde = { version = "1", features = ["derive"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "signal"] }
+toml = "0.8"
+tracing = "0.1"
+tracing-opentelemetry = "0.28"
+tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }

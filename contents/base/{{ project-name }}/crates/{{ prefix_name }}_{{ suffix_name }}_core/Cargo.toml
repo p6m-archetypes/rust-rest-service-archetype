@@ -1,0 +1,18 @@
+[package]
+name = "{{ prefix_name }}_{{ suffix_name }}_core"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+{% if persistence ~= 'None' %}{{ prefix_name }}_{{ suffix_name }}_persistence = { path = "../{{ prefix_name }}_{{ suffix_name }}_persistence" }
+{% endif %}{% if cache ~= 'None' %}{{ prefix_name }}_{{ suffix_name }}_cache = { path = "../{{ prefix_name }}_{{ suffix_name }}_cache" }
+{% endif %}{% if messaging ~= 'None' %}{{ prefix_name }}_{{ suffix_name }}_messaging = { path = "../{{ prefix_name }}_{{ suffix_name }}_messaging" }
+{% endif %}
+anyhow = "1"
+axum = { version = "0.8", features = ["macros"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+tokio = { version = "1", features = ["rt"] }
+tower-http = { version = "0.6", features = ["trace", "cors"] }
+tracing = "0.1"
