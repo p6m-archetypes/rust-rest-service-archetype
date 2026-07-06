@@ -12,7 +12,7 @@ context:set("repo_name", context:get("project-name"))
 context:set("github_owner", context:get("org-solution-name"))
 
 -- Service configuration
-require("ports").prompt(context, { help = "HTTP port for the REST service" })
+require("ports").prompt(context, { ports = { { "service", help = "HTTP port for the REST service" }, "management", "debug" } })
 
 -- Resources
 context:prompt_select("Persistence:", "persistence", {
