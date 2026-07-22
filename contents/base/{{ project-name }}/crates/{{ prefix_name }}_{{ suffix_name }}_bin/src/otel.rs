@@ -17,7 +17,9 @@ use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::{EnvFilter, Layer};
 
 pub fn init_tracing(structured: bool) {
-    let env_filter = EnvFilter::from_default_env();
+    // Default to `info` when RUST_LOG is unset — services must emit their startup and request
+    // logs out of the box (structured logging is only observable if something is logged).
+    let env_filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
 
     // Format layer: JSON in non-local environments, human-readable otherwise.
     // Boxed so both variants share a single concrete type — required because the

@@ -1,6 +1,12 @@
-use axum::{Json, extract::State, http::{header, StatusCode}, response::IntoResponse};
+use axum::{
+    Json,
+    extract::{Path, State},
+    http::{StatusCode, header},
+    response::IntoResponse,
+};
 use serde::{Deserialize, Serialize};
-use crate::{AppState, error::AppError};
+
+use crate::{AppState, error::AppError, store::{{ PrefixName }}};
 
 #[derive(Serialize)]
 pub struct HealthResponse {
@@ -15,25 +21,62 @@ pub async fn liveness() -> Json<HealthResponse> {
     Json(HealthResponse { status: "ok" })
 }
 
-/// Prometheus metrics endpoint.
-/// Returns metrics collected by the `metrics` crate via `metrics-exporter-prometheus`.
-pub async fn metrics() -> impl IntoResponse {
-    // TODO: wire up metrics-exporter-prometheus handle and return rendered text.
-    // For now returns an empty valid Prometheus response so Kubernetes scraping succeeds.
+/// Prometheus metrics endpoint: renders everything the installed recorder has collected.
+pub async fn metrics(handle: metrics_exporter_prometheus::PrometheusHandle) -> impl IntoResponse {
     (
         StatusCode::OK,
         [(header::CONTENT_TYPE, "text/plain; version=0.0.4; charset=utf-8")],
-        "# Prometheus metrics\n",
+        handle.render(),
     )
 }
 
-#[derive(Serialize, Deserialize)]
-pub struct {{ PrefixName }}Item {
-    pub id: String,
-    pub name: String,
+/// Create/update request body — JSON is camelCased at the boundary.
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct {{ PrefixName }}Request {
+    pub display_name: String,
 }
 
-pub async fn list(State(_state): State<AppState>) -> Result<Json<Vec<{{ PrefixName }}Item>>, AppError> {
-    // TODO: implement domain logic
-    Ok(Json(vec![]))
+pub async fn create(
+    State(state): State<AppState>,
+    Json(req): Json<{{ PrefixName }}Request>,
+) -> Result<(StatusCode, Json<{{ PrefixName }}>), AppError> {
+    let created = state.store.create(&req.display_name).await?;
+    Ok((StatusCode::CREATED, Json(created)))
+}
+
+pub async fn list(State(state): State<AppState>) -> Result<Json<Vec<{{ PrefixName }}>>, AppError> {
+    Ok(Json(state.store.list().await?))
+}
+
+pub async fn get(
+    State(state): State<AppState>,
+    Path(id): Path<String>,
+) -> Result<Json<{{ PrefixName }}>, AppError> {
+    match state.store.get(&id).await? {
+        Some(entity) => Ok(Json(entity)),
+        None => Err(AppError::NotFound),
+    }
+}
+
+pub async fn update(
+    State(state): State<AppState>,
+    Path(id): Path<String>,
+    Json(req): Json<{{ PrefixName }}Request>,
+) -> Result<Json<{{ PrefixName }}>, AppError> {
+    match state.store.update(&id, &req.display_name).await? {
+        Some(entity) => Ok(Json(entity)),
+        None => Err(AppError::NotFound),
+    }
+}
+
+pub async fn delete(
+    State(state): State<AppState>,
+    Path(id): Path<String>,
+) -> Result<StatusCode, AppError> {
+    if state.store.delete(&id).await? {
+        Ok(StatusCode::NO_CONTENT)
+    } else {
+        Err(AppError::NotFound)
+    }
 }

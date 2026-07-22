@@ -84,6 +84,12 @@ elseif context:get("persistence") == "MySQL" then
     require("rust-resource-mysql").render(context, dest)
 end
 
+-- The service's own entity migration, layered onto the persistence crate the resource
+-- library just rendered (the baseline migration is the library's; the entity table is ours).
+if context:get("has_persistence") then
+    directory.render("contents/persistence", context, { destination = context:get("project-name") })
+end
+
 if context:get("has_cache") then
     require("rust-resource-redis").render(context, dest)
 end

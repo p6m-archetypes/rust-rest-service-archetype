@@ -2,6 +2,7 @@ pub mod error;
 pub mod handlers;
 pub mod routes;
 pub mod settings;
+pub mod store;
 
 use anyhow::Result;
 use axum::Router;
@@ -14,8 +15,8 @@ use settings::CoreSettings;
 pub struct AppState {
     #[allow(dead_code)]
     settings: CoreSettings,
-{% if persistence ~= 'None' %}    pub db: PersistencePool,
-{% endif %}{% if cache ~= 'None' %}    pub cache: CachePool,
+    pub store: store::Store,
+{% if cache ~= 'None' %}    pub cache: CachePool,
 {% endif %}{% if messaging ~= 'None' %}    pub messaging: MessagingClient,
 {% endif %}}
 
@@ -76,7 +77,8 @@ impl Builder {
         Ok({{ PrefixName }}{{ SuffixName }}Core {
             state: AppState {
                 settings: self.settings,
-{% if persistence ~= 'None' %}                db: self.db,
+{% if persistence ~= 'None' %}                store: store::Store::new(self.db),
+{% else %}                store: store::Store::default(),
 {% endif %}{% if cache ~= 'None' %}                cache: self.cache.expect("cache must be set via with_cache()"),
 {% endif %}{% if messaging ~= 'None' %}                messaging: self.messaging.expect("messaging must be set via with_messaging()"),
 {% endif %}            },

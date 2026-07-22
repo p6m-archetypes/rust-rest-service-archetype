@@ -29,6 +29,23 @@ impl Settings {
 
         figment = figment.merge(Env::prefixed("APP_").split("__"));
 
+        // Platform environment contract: the deployment manifests inject the server ports as
+        // bare variables (SERVER_PORT / MANAGEMENT_PORT). Layer them onto the settings tree so
+        // the platform's names are honored; APP_-prefixed vars keep working for local overrides.
+        // DB_* / CACHE_* / MESSAGING_* are consumed by the resource crates directly.
+        figment = figment.merge(
+            Env::raw()
+                .filter(|key| key == "SERVER_PORT" || key == "MANAGEMENT_PORT")
+                .map(|key| {
+                    if key == "SERVER_PORT" {
+                        "server.port".into()
+                    } else {
+                        "server.management_port".into()
+                    }
+                })
+                .split("."),
+        );
+
         Ok(figment.extract()?)
     }
 }

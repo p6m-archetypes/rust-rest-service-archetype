@@ -10,9 +10,14 @@ edition.workspace = true
 {% endif %}
 anyhow = "1"
 axum = { version = "0.8", features = ["macros"] }
+metrics = "0.24"
+metrics-exporter-prometheus = { version = "0.16", default-features = false }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-thiserror = "2"
+{% if persistence == 'PostgreSQL' %}sqlx = { version = "0.8", features = ["postgres", "runtime-tokio-rustls"] }
+{% endif %}{% if persistence == 'MySQL' %}sqlx = { version = "0.8", features = ["mysql", "runtime-tokio-rustls"] }
+{% endif %}thiserror = "2"
 tokio = { version = "1", features = ["rt"] }
 tower-http = { version = "0.6", features = ["trace", "cors"] }
 tracing = "0.1"
+uuid = { version = "1", features = ["v4"] }
