@@ -45,7 +45,22 @@ impl Settings {
                 })
                 .split("."),
         );
-
+{% if persistence ~= 'None' %}
+        // The database contract arrives as discrete DB_* vars; assemble the connection URL
+        // the persistence layer expects.
+        if let (Ok(host), Ok(port), Ok(user), Ok(pass), Ok(db)) = (
+            std::env::var("DB_HOST"),
+            std::env::var("DB_PORT"),
+            std::env::var("DB_USERNAME"),
+            std::env::var("DB_PASSWORD"),
+            std::env::var("DB_DBNAME"),
+        ) {
+            figment = figment.merge(Serialized::default(
+                "persistence.url",
+                format!("{% if persistence == 'MySQL' %}mysql{% else %}postgres{% endif %}://{user}:{pass}@{host}:{port}/{db}"),
+            ));
+        }
+{% endif %}
         Ok(figment.extract()?)
     }
 }
