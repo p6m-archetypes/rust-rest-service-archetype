@@ -1,21 +1,18 @@
 use axum::{
-    Router,
     extract::Request,
     middleware::{self, Next},
     response::Response,
     routing::get,
+    Router,
 };
 use metrics_exporter_prometheus::PrometheusBuilder;
 
-use crate::{AppState, handlers};
+use crate::{handlers, AppState};
 
 /// Main service router — domain routes only, versioned and named from the service identity.
 pub fn router(state: AppState) -> Router {
     Router::new()
-        .route(
-            "/api/v1/{{ prefix-name }}s",
-            get(handlers::list).post(handlers::create),
-        )
+        .route("/api/v1/{{ prefix-name }}s", get(handlers::list).post(handlers::create))
         .route(
             "/api/v1/{{ prefix-name }}s/{id}",
             get(handlers::get).put(handlers::update).delete(handlers::delete),

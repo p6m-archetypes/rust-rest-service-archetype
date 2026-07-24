@@ -18,7 +18,8 @@ pub enum Commands {
         #[command(subcommand)]
         action: ConfigAction,
     },
-{% if persistence ~= 'None' %}    /// Database migration commands
+{% if persistence ~= 'None' %}
+    /// Database migration commands
     Migrate {
         #[command(subcommand)]
         action: MigrateAction,

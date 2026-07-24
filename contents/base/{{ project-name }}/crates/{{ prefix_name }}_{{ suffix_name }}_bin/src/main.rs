@@ -5,13 +5,23 @@ mod cli;
 mod otel;
 mod settings;
 
-use {{ prefix_name }}_{{ suffix_name }}_core::{{ PrefixName }}{{ SuffixName }}Core;
-{% if persistence ~= 'None' %}use {{ prefix_name }}_{{ suffix_name }}_persistence::PersistencePool;
-{% endif %}{% if cache ~= 'None' %}use {{ prefix_name }}_{{ suffix_name }}_cache::connect as cache_connect;
-{% endif %}{% if messaging ~= 'None' %}use {{ prefix_name }}_{{ suffix_name }}_messaging::MessagingClient;
-{% endif %}{% if has_s3 %}use {{ prefix_name }}_{{ suffix_name }}_storage_s3::connect as s3_connect;
-{% endif %}{% if has_azure_blob %}use {{ prefix_name }}_{{ suffix_name }}_storage_azure::connect as azure_connect;
+{% if cache ~= 'None' %}
+use {{ prefix_name }}_{{ suffix_name }}_cache::connect as cache_connect;
 {% endif %}
+use {{ prefix_name }}_{{ suffix_name }}_core::{{ PrefixName }}{{ SuffixName }}Core;
+{% if messaging ~= 'None' %}
+use {{ prefix_name }}_{{ suffix_name }}_messaging::MessagingClient;
+{% endif %}
+{% if persistence ~= 'None' %}
+use {{ prefix_name }}_{{ suffix_name }}_persistence::PersistencePool;
+{% endif %}
+{% if has_azure_blob %}
+use {{ prefix_name }}_{{ suffix_name }}_storage_azure::connect as azure_connect;
+{% endif %}
+{% if has_s3 %}
+use {{ prefix_name }}_{{ suffix_name }}_storage_s3::connect as s3_connect;
+{% endif %}
+
 #[tokio::main]
 async fn main() -> Result<()> {
     dotenvy::dotenv().ok();
@@ -36,27 +46,42 @@ async fn main() -> Result<()> {
                 println!("{}", toml::to_string_pretty(&settings)?);
             }
         },
-{% if persistence ~= 'None' %}        Some(cli::Commands::Migrate { action }) => {
+{% if persistence ~= 'None' %}
+        Some(cli::Commands::Migrate { action }) => {
             let pool = PersistencePool::connect(&settings.persistence).await?;
             match action {
                 cli::MigrateAction::Up => pool.migrate_up().await?,
                 cli::MigrateAction::Down => pool.migrate_down(Some(1)).await?,
             }
         }
-{% endif %}        None => {
+{% endif %}
+        None => {
             tracing::info!("Starting {{ project-name }}...");
 
-{% if persistence ~= 'None' %}            let db = PersistencePool::connect(&settings.persistence).await?;
-{% endif %}{% if cache ~= 'None' %}            let cache = cache_connect(&settings.cache).await?;
-{% endif %}{% if messaging ~= 'None' %}            let messaging = MessagingClient::connect(&settings.messaging).await?;
-{% endif %}{% if has_s3 %}            let _s3 = s3_connect(&settings.storage_s3).await?;
-{% endif %}{% if has_azure_blob %}            let _azure = azure_connect(&settings.storage_azure)?;
+{% if persistence ~= 'None' %}
+            let db = PersistencePool::connect(&settings.persistence).await?;
+{% endif %}
+{% if cache ~= 'None' %}
+            let cache = cache_connect(&settings.cache).await?;
+{% endif %}
+{% if messaging ~= 'None' %}
+            let messaging = MessagingClient::connect(&settings.messaging).await?;
+{% endif %}
+{% if has_s3 %}
+            let _s3 = s3_connect(&settings.storage_s3).await?;
+{% endif %}
+{% if has_azure_blob %}
+            let _azure = azure_connect(&settings.storage_azure)?;
 {% endif %}
             let core = {{ PrefixName }}{{ SuffixName }}Core::builder({% if persistence ~= 'None' %}db{% endif %})
                 .with_settings(&settings.core)
-{% if cache ~= 'None' %}                .with_cache(cache)
-{% endif %}{% if messaging ~= 'None' %}                .with_messaging(messaging)
-{% endif %}                .build()
+{% if cache ~= 'None' %}
+                .with_cache(cache)
+{% endif %}
+{% if messaging ~= 'None' %}
+                .with_messaging(messaging)
+{% endif %}
+                .build()
                 .await?;
 
             let svc_router = core.router();

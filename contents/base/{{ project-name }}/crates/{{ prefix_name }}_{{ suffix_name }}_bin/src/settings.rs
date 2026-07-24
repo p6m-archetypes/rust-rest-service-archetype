@@ -1,27 +1,48 @@
-use figment::{Figment, providers::{Format, Toml, Env, Serialized}};
-use serde::{Deserialize, Serialize};
-use {{ prefix_name }}_{{ suffix_name }}_core::settings::CoreSettings;
-{% if persistence ~= 'None' %}use {{ prefix_name }}_{{ suffix_name }}_persistence::settings::PersistenceSettings;
-{% endif %}{% if cache ~= 'None' %}use {{ prefix_name }}_{{ suffix_name }}_cache::settings::CacheSettings;
-{% endif %}{% if messaging ~= 'None' %}use {{ prefix_name }}_{{ suffix_name }}_messaging::settings::MessagingSettings;
-{% endif %}{% if has_s3 %}use {{ prefix_name }}_{{ suffix_name }}_storage_s3::settings::StorageS3Settings;
-{% endif %}{% if has_azure_blob %}use {{ prefix_name }}_{{ suffix_name }}_storage_azure::settings::StorageAzureSettings;
+{% if cache ~= 'None' %}
+use {{ prefix_name }}_{{ suffix_name }}_cache::settings::CacheSettings;
 {% endif %}
+use {{ prefix_name }}_{{ suffix_name }}_core::settings::CoreSettings;
+{% if messaging ~= 'None' %}
+use {{ prefix_name }}_{{ suffix_name }}_messaging::settings::MessagingSettings;
+{% endif %}
+{% if persistence ~= 'None' %}
+use {{ prefix_name }}_{{ suffix_name }}_persistence::settings::PersistenceSettings;
+{% endif %}
+{% if has_azure_blob %}
+use {{ prefix_name }}_{{ suffix_name }}_storage_azure::settings::StorageAzureSettings;
+{% endif %}
+{% if has_s3 %}
+use {{ prefix_name }}_{{ suffix_name }}_storage_s3::settings::StorageS3Settings;
+{% endif %}
+use figment::{
+    providers::{Env, Format, Serialized, Toml},
+    Figment,
+};
+use serde::{Deserialize, Serialize};
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Settings {
     pub server: ServerSettings,
     pub core: CoreSettings,
-{% if persistence ~= 'None' %}    pub persistence: PersistenceSettings,
-{% endif %}{% if cache ~= 'None' %}    pub cache: CacheSettings,
-{% endif %}{% if messaging ~= 'None' %}    pub messaging: MessagingSettings,
-{% endif %}{% if has_s3 %}    pub storage_s3: StorageS3Settings,
-{% endif %}{% if has_azure_blob %}    pub storage_azure: StorageAzureSettings,
-{% endif %}}
+{% if persistence ~= 'None' %}
+    pub persistence: PersistenceSettings,
+{% endif %}
+{% if cache ~= 'None' %}
+    pub cache: CacheSettings,
+{% endif %}
+{% if messaging ~= 'None' %}
+    pub messaging: MessagingSettings,
+{% endif %}
+{% if has_s3 %}
+    pub storage_s3: StorageS3Settings,
+{% endif %}
+{% if has_azure_blob %}
+    pub storage_azure: StorageAzureSettings,
+{% endif %}
+}
 
 impl Settings {
     pub fn load(config_file: Option<&str>) -> anyhow::Result<Self> {
-        let mut figment = Figment::from(Serialized::defaults(Self::default()))
-            .merge(Toml::file("config/default.toml"));
+        let mut figment = Figment::from(Serialized::defaults(Self::default())).merge(Toml::file("config/default.toml"));
 
         if let Some(path) = config_file {
             figment = figment.merge(Toml::file(path));

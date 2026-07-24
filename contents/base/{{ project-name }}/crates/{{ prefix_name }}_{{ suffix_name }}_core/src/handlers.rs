@@ -1,12 +1,12 @@
 use axum::{
-    Json,
     extract::{Path, State},
-    http::{StatusCode, header},
+    http::{header, StatusCode},
     response::IntoResponse,
+    Json,
 };
 use serde::{Deserialize, Serialize};
 
-use crate::{AppState, error::AppError, store::{{ PrefixName }}};
+use crate::{error::AppError, store::{{ PrefixName }}, AppState};
 
 #[derive(Serialize)]
 pub struct HealthResponse {
@@ -49,10 +49,7 @@ pub async fn list(State(state): State<AppState>) -> Result<Json<Vec<{{ PrefixNam
     Ok(Json(state.store.list().await?))
 }
 
-pub async fn get(
-    State(state): State<AppState>,
-    Path(id): Path<String>,
-) -> Result<Json<{{ PrefixName }}>, AppError> {
+pub async fn get(State(state): State<AppState>, Path(id): Path<String>) -> Result<Json<{{ PrefixName }}>, AppError> {
     match state.store.get(&id).await? {
         Some(entity) => Ok(Json(entity)),
         None => Err(AppError::NotFound),
@@ -70,10 +67,7 @@ pub async fn update(
     }
 }
 
-pub async fn delete(
-    State(state): State<AppState>,
-    Path(id): Path<String>,
-) -> Result<StatusCode, AppError> {
+pub async fn delete(State(state): State<AppState>, Path(id): Path<String>) -> Result<StatusCode, AppError> {
     if state.store.delete(&id).await? {
         Ok(StatusCode::NO_CONTENT)
     } else {
