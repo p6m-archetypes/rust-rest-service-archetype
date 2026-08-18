@@ -15,7 +15,7 @@ fn main() -> Result<()> {
 
 fn install() -> Result<()> {
     let status = Command::new("cargo")
-        .args(["install", "--path", "crates/{{ prefix_name }}_{{ suffix_name }}_bin"])
+        .args(["install", "--path", "crates/{{ project_name }}_bin"])
         .status()?;
     if !status.success() {
         anyhow::bail!("cargo install failed");

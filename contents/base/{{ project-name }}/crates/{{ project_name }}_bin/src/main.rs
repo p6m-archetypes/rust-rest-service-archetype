@@ -6,20 +6,20 @@ mod otel;
 mod settings;
 
 {% if cache ~= 'None' %}
-use {{ prefix_name }}_{{ suffix_name }}_cache::connect as cache_connect;
+use {{ project_name }}_cache::connect as cache_connect;
 {% endif %}
-use {{ prefix_name }}_{{ suffix_name }}_core::{{ PrefixName }}{{ SuffixName }}Core;
+use {{ project_name }}_core::{{ ProjectName }}Core;
 {% if messaging ~= 'None' %}
-use {{ prefix_name }}_{{ suffix_name }}_messaging::MessagingClient;
+use {{ project_name }}_messaging::MessagingClient;
 {% endif %}
 {% if persistence ~= 'None' %}
-use {{ prefix_name }}_{{ suffix_name }}_persistence::PersistencePool;
+use {{ project_name }}_persistence::PersistencePool;
 {% endif %}
 {% if has_azure_blob %}
-use {{ prefix_name }}_{{ suffix_name }}_storage_azure::connect as azure_connect;
+use {{ project_name }}_storage_azure::connect as azure_connect;
 {% endif %}
 {% if has_s3 %}
-use {{ prefix_name }}_{{ suffix_name }}_storage_s3::connect as s3_connect;
+use {{ project_name }}_storage_s3::connect as s3_connect;
 {% endif %}
 
 #[tokio::main]
@@ -73,7 +73,7 @@ async fn main() -> Result<()> {
 {% if has_azure_blob %}
             let _azure = azure_connect(&settings.storage_azure)?;
 {% endif %}
-            let core = {{ PrefixName }}{{ SuffixName }}Core::builder({% if persistence ~= 'None' %}db{% endif %})
+            let core = {{ ProjectName }}Core::builder({% if persistence ~= 'None' %}db{% endif %})
                 .with_settings(&settings.core)
 {% if cache ~= 'None' %}
                 .with_cache(cache)
@@ -85,7 +85,7 @@ async fn main() -> Result<()> {
                 .await?;
 
             let svc_router = core.router();
-            let mgmt_router = {{ PrefixName }}{{ SuffixName }}Core::management_router();
+            let mgmt_router = {{ ProjectName }}Core::management_router();
 
             // Service server — domain traffic on service_port
             let svc_addr = format!("{}:{}", settings.server.host, settings.server.port);

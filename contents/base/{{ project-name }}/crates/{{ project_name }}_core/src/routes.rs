@@ -12,9 +12,9 @@ use crate::{handlers, AppState};
 /// Main service router — domain routes only, versioned and named from the service identity.
 pub fn router(state: AppState) -> Router {
     Router::new()
-        .route("/api/v1/{{ prefix-name }}s", get(handlers::list).post(handlers::create))
+        .route("/api/v1/{{ entity-name }}s", get(handlers::list).post(handlers::create))
         .route(
-            "/api/v1/{{ prefix-name }}s/{id}",
+            "/api/v1/{{ entity-name }}s/{id}",
             get(handlers::get).put(handlers::update).delete(handlers::delete),
         )
         .layer(middleware::from_fn(track_requests))
@@ -33,7 +33,7 @@ pub fn management_router() -> Router {
 
     // Seed a build-info family so /metrics is meaningful from the first scrape.
     metrics::gauge!(
-        "{{ prefix_name }}_{{ suffix_name }}_build_info",
+        "{{ project_name }}_build_info",
         "version" => env!("CARGO_PKG_VERSION")
     )
     .set(1.0);

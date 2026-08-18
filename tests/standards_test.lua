@@ -14,7 +14,7 @@ local SRC = "."
 
 -- Two variants cover both axes cheaply: name shape (single vs multi-word — casing bugs only show
 -- on the second) paired with persistence backend (PostgreSQL vs MySQL). The entity table is the
--- service's own (snake, naive plural): {{ prefix_name }}s.
+-- service's own (snake, naive plural): {{ entity_name }}s.
 local VARIANTS = {
 	{
 		prefix = "Customer",

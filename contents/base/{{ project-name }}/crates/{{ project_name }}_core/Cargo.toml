@@ -1,12 +1,12 @@
 [package]
-name = "{{ prefix_name }}_{{ suffix_name }}_core"
+name = "{{ project_name }}_core"
 version.workspace = true
 edition.workspace = true
 
 [dependencies]
-{% if persistence ~= 'None' %}{{ prefix_name }}_{{ suffix_name }}_persistence = { path = "../{{ prefix_name }}_{{ suffix_name }}_persistence" }
-{% endif %}{% if cache ~= 'None' %}{{ prefix_name }}_{{ suffix_name }}_cache = { path = "../{{ prefix_name }}_{{ suffix_name }}_cache" }
-{% endif %}{% if messaging ~= 'None' %}{{ prefix_name }}_{{ suffix_name }}_messaging = { path = "../{{ prefix_name }}_{{ suffix_name }}_messaging" }
+{% if persistence ~= 'None' %}{{ project_name }}_persistence = { path = "../{{ project_name }}_persistence" }
+{% endif %}{% if cache ~= 'None' %}{{ project_name }}_cache = { path = "../{{ project_name }}_cache" }
+{% endif %}{% if messaging ~= 'None' %}{{ project_name }}_messaging = { path = "../{{ project_name }}_messaging" }
 {% endif %}
 anyhow = "1"
 axum = { version = "0.8", features = ["macros"] }

@@ -1,18 +1,18 @@
 {% if cache ~= 'None' %}
-use {{ prefix_name }}_{{ suffix_name }}_cache::settings::CacheSettings;
+use {{ project_name }}_cache::settings::CacheSettings;
 {% endif %}
-use {{ prefix_name }}_{{ suffix_name }}_core::settings::CoreSettings;
+use {{ project_name }}_core::settings::CoreSettings;
 {% if messaging ~= 'None' %}
-use {{ prefix_name }}_{{ suffix_name }}_messaging::settings::MessagingSettings;
+use {{ project_name }}_messaging::settings::MessagingSettings;
 {% endif %}
 {% if persistence ~= 'None' %}
-use {{ prefix_name }}_{{ suffix_name }}_persistence::settings::PersistenceSettings;
+use {{ project_name }}_persistence::settings::PersistenceSettings;
 {% endif %}
 {% if has_azure_blob %}
-use {{ prefix_name }}_{{ suffix_name }}_storage_azure::settings::StorageAzureSettings;
+use {{ project_name }}_storage_azure::settings::StorageAzureSettings;
 {% endif %}
 {% if has_s3 %}
-use {{ prefix_name }}_{{ suffix_name }}_storage_s3::settings::StorageS3Settings;
+use {{ project_name }}_storage_s3::settings::StorageS3Settings;
 {% endif %}
 use figment::{
     providers::{Env, Format, Serialized, Toml},

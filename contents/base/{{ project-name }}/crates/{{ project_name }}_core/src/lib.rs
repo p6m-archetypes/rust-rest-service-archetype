@@ -7,13 +7,13 @@ pub mod store;
 use anyhow::Result;
 use axum::Router;
 {% if cache ~= 'None' %}
-use {{ prefix_name }}_{{ suffix_name }}_cache::CachePool;
+use {{ project_name }}_cache::CachePool;
 {% endif %}
 {% if messaging ~= 'None' %}
-use {{ prefix_name }}_{{ suffix_name }}_messaging::MessagingClient;
+use {{ project_name }}_messaging::MessagingClient;
 {% endif %}
 {% if persistence ~= 'None' %}
-use {{ prefix_name }}_{{ suffix_name }}_persistence::PersistencePool;
+use {{ project_name }}_persistence::PersistencePool;
 {% endif %}
 use settings::CoreSettings;
 #[derive(Clone)]
@@ -29,11 +29,11 @@ pub struct AppState {
 {% endif %}
 }
 
-pub struct {{ PrefixName }}{{ SuffixName }}Core {
+pub struct {{ ProjectName }}Core {
     state: AppState,
 }
 
-impl {{ PrefixName }}{{ SuffixName }}Core {
+impl {{ ProjectName }}Core {
     pub fn builder({% if persistence ~= 'None' %}db: PersistencePool{% endif %}) -> Builder {
         Builder::new({% if persistence ~= 'None' %}db{% endif %})
     }
@@ -94,8 +94,8 @@ impl Builder {
     }
 {% endif %}
 
-    pub async fn build(self) -> Result<{{ PrefixName }}{{ SuffixName }}Core> {
-        Ok({{ PrefixName }}{{ SuffixName }}Core {
+    pub async fn build(self) -> Result<{{ ProjectName }}Core> {
+        Ok({{ ProjectName }}Core {
             state: AppState {
                 settings: self.settings,
 {% if persistence ~= 'None' %}

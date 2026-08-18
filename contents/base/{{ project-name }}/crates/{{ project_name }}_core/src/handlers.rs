@@ -6,7 +6,7 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::{error::AppError, store::{{ PrefixName }}, AppState};
+use crate::{error::AppError, store::{{ EntityName }}, AppState};
 
 #[derive(Serialize)]
 pub struct HealthResponse {
@@ -33,23 +33,23 @@ pub async fn metrics(handle: metrics_exporter_prometheus::PrometheusHandle) -> i
 /// Create/update request body — JSON is camelCased at the boundary.
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct {{ PrefixName }}Request {
+pub struct {{ EntityName }}Request {
     pub display_name: String,
 }
 
 pub async fn create(
     State(state): State<AppState>,
-    Json(req): Json<{{ PrefixName }}Request>,
-) -> Result<(StatusCode, Json<{{ PrefixName }}>), AppError> {
+    Json(req): Json<{{ EntityName }}Request>,
+) -> Result<(StatusCode, Json<{{ EntityName }}>), AppError> {
     let created = state.store.create(&req.display_name).await?;
     Ok((StatusCode::CREATED, Json(created)))
 }
 
-pub async fn list(State(state): State<AppState>) -> Result<Json<Vec<{{ PrefixName }}>>, AppError> {
+pub async fn list(State(state): State<AppState>) -> Result<Json<Vec<{{ EntityName }}>>, AppError> {
     Ok(Json(state.store.list().await?))
 }
 
-pub async fn get(State(state): State<AppState>, Path(id): Path<String>) -> Result<Json<{{ PrefixName }}>, AppError> {
+pub async fn get(State(state): State<AppState>, Path(id): Path<String>) -> Result<Json<{{ EntityName }}>, AppError> {
     match state.store.get(&id).await? {
         Some(entity) => Ok(Json(entity)),
         None => Err(AppError::NotFound),
@@ -59,8 +59,8 @@ pub async fn get(State(state): State<AppState>, Path(id): Path<String>) -> Resul
 pub async fn update(
     State(state): State<AppState>,
     Path(id): Path<String>,
-    Json(req): Json<{{ PrefixName }}Request>,
-) -> Result<Json<{{ PrefixName }}>, AppError> {
+    Json(req): Json<{{ EntityName }}Request>,
+) -> Result<Json<{{ EntityName }}>, AppError> {
     match state.store.update(&id, &req.display_name).await? {
         Some(entity) => Ok(Json(entity)),
         None => Err(AppError::NotFound),

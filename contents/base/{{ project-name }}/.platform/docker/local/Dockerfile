@@ -8,7 +8,7 @@ COPY . .
 RUN --mount=type=cache,target=/app/target,sharing=locked \
     --mount=type=cache,target=/usr/local/cargo/registry,sharing=locked \
     --mount=type=cache,target=/usr/local/cargo/git,sharing=locked \
-    cargo build --release -p {{ prefix_name }}_{{ suffix_name }}_bin \
+    cargo build --release -p {{ project_name }}_bin \
     && install -m 0755 target/release/{{ project-name }} /usr/local/bin/{{ project-name }}
 
 FROM debian:bookworm-slim

@@ -3,7 +3,7 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: {{ prefix_name }}_{{ suffix_name }}
+      POSTGRES_DB: {{ project_name }}
       POSTGRES_USER: dev
       POSTGRES_PASSWORD: dev
     ports:
@@ -15,7 +15,7 @@ services:
   mysql:
     image: mysql:8-debian
     environment:
-      MYSQL_DATABASE: {{ prefix_name }}_{{ suffix_name }}
+      MYSQL_DATABASE: {{ project_name }}
       MYSQL_USER: dev
       MYSQL_PASSWORD: dev
       MYSQL_ROOT_PASSWORD: root

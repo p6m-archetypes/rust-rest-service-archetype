@@ -5,7 +5,7 @@ SERVICE_PORT = {{ service_port }}
 MANAGEMENT_PORT = {{ management_port }}
 
 {% if persistence ~= 'None' %}
-DB_NAME = '{{ prefix_name }}_{{ suffix_name }}'
+DB_NAME = '{{ project_name }}'
 DB_PORT = {{ database_port }}
 load_dynamic('./tilt/database.Tiltfile')
 {% endif %}

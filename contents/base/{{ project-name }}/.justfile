@@ -2,10 +2,10 @@ default:
     just --list
 
 run:
-    cargo run -p {{ prefix_name }}_{{ suffix_name }}_bin
+    cargo run -p {{ project_name }}_bin
 
 install:
-    cargo install --path crates/{{ prefix_name }}_{{ suffix_name }}_bin
+    cargo install --path crates/{{ project_name }}_bin
 
 build:
     cargo build
@@ -20,8 +20,8 @@ clippy:
     cargo clippy -- -D warnings
 {% if persistence ~= 'None' %}
 migrate-up:
-    cargo run -p {{ prefix_name }}_{{ suffix_name }}_bin -- migrate up
+    cargo run -p {{ project_name }}_bin -- migrate up
 
 migrate-down:
-    cargo run -p {{ prefix_name }}_{{ suffix_name }}_bin -- migrate down
+    cargo run -p {{ project_name }}_bin -- migrate down
 {% endif %}
