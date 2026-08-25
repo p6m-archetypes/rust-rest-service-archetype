@@ -1,0 +1,66 @@
+services:
+{% if persistence == 'PostgreSQL' %}
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: {{ project_name }}
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev
+    ports:
+      - "{{ database_port }}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+{% endif %}
+{% if persistence == 'MySQL' %}
+  mysql:
+    image: mysql:8-debian
+    environment:
+      MYSQL_DATABASE: {{ project_name }}
+      MYSQL_USER: dev
+      MYSQL_PASSWORD: dev
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "{{ database_port }}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+{% endif %}
+{% if cache ~= 'None' %}
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+{% endif %}
+{% if messaging == 'Kafka' %}
+  kafka:
+    image: bitnami/kafka:latest
+    environment:
+      KAFKA_CFG_NODE_ID: 0
+      KAFKA_CFG_PROCESS_ROLES: controller,broker
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 0@kafka:9093
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+    ports:
+      - "9092:9092"
+{% endif %}
+{% if messaging == 'Pulsar' %}
+  pulsar:
+    image: apachepulsar/pulsar:latest
+    command: bin/pulsar standalone
+    ports:
+      - "6650:6650"
+      - "8080:8080"
+{% endif %}
+{% if persistence == 'None' and cache == 'None' and messaging == 'None' %}
+  # No external services required for this configuration.
+  # Add services here as you add resource dependencies.
+{% endif %}
+
+{% if persistence == 'PostgreSQL' %}
+volumes:
+  postgres_data:
+{% endif %}
+{% if persistence == 'MySQL' %}
+volumes:
+  mysql_data:
+{% endif %}

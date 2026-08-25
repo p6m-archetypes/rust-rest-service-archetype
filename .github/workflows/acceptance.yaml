@@ -1,0 +1,21 @@
+name: Acceptance
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  acceptance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # The standards suite is container-first: the SUT builds inside docker, so the
+      # runner needs no Rust toolchain — run-action installs prova, docker does the rest.
+      - uses: prova-rs/run-action@v1
+        with:
+          profile: ci
+          # -U: floating @v1 plugin pins are tag-pins, which the git cache treats as immutable —
+          # force-update so a moved v1 (a spec release) is picked up on warm caches.
+          args: "-U"

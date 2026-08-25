@@ -1,0 +1,3 @@
+[build]
+# Uncomment to use lld for faster linking (requires lld installed):
+# rustflags = ["-C", "link-arg=-fuse-ld=lld"]
